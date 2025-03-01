@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
+import LabourDB from "../../libs/database";
 
 // Mock data for contractors
 let contractors = [];
@@ -181,14 +182,31 @@ export const ContractorRegistrationPage = ({ navigation }) => {
 
     const handleSubmit = async () => {
         if (validateStep(currentStep)) {
-            const newContractor = {
-                id: (contractors.length + 1).toString(),
-                ...formData
-            };
-            contractors.push(newContractor);
-            
-            // Navigate to dashboard
-            router.push('/sramikarta/dashboard');
+            try {
+                const newContractor = {
+                    fullName: formData.fullName,
+                    phone: formData.phone,
+                    email: formData.email,
+                    address: formData.address,
+                    city: formData.city,
+                    pincode: formData.pincode,
+                    photo: formData.photo,
+                    idProof: formData.idProof,
+                    accountHolder: formData.accountHolder,
+                    accountNumber: formData.accountNumber,
+                    ifscCode: formData.ifscCode,
+                    bankName: formData.bankName,
+                    receiveNotifications: formData.receiveNotifications,
+                    shareLocationData: formData.shareLocationData,
+                    agreeToTerms: formData.agreeToTerms
+                };
+                await LabourDB.addContractorProfile(newContractor);
+                // Navigate to dashboard
+                router.push('/sramikarta/dashboard');
+            } catch (error) {
+                console.error('Error adding contractor profile:', error);
+                // Handle error (e.g., show a notification)
+            }
         }
     };
 

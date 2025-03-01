@@ -24,6 +24,10 @@ export default function AddLayout() {
                     headerShown: false,
                     animation: "slide_from_right"
                 }} />
+                <Stack.Screen name="prpfile" options={{
+                    headerShown: false,
+                    animation: "slide_from_right"
+                }} />
             </Stack>
         </GestureHandlerRootView>
     )

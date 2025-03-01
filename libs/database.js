@@ -76,6 +76,30 @@ const setupDatabase = async () => {
       FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE
     );
   `);
+
+  // Create contractors table
+  await labourDB.execAsync(`
+    CREATE TABLE IF NOT EXISTS contractors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      full_name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      email TEXT NOT NULL,
+      address TEXT NOT NULL,
+      city TEXT NOT NULL,
+      pincode TEXT NOT NULL,
+      photo TEXT,
+      id_proof TEXT,
+      account_holder TEXT NOT NULL,
+      account_number TEXT NOT NULL,
+      ifsc_code TEXT NOT NULL,
+      bank_name TEXT NOT NULL,
+      receive_notifications INTEGER DEFAULT 1,
+      share_location_data INTEGER DEFAULT 1,
+      agree_to_terms INTEGER DEFAULT 0,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+  `);
   
   // Populate skills table with default skills
   const defaultSkills = [
@@ -320,6 +344,49 @@ export const deleteLabourProfile = async (id) => {
   }
 };
 
+// Add methods for contractors
+export const getAllContractorProfiles = async () => {
+  const labourDB = await openLabourDB();
+  try {
+    const result = await labourDB.getAllAsync('SELECT * FROM contractors');
+    return result;
+  } catch (error) {
+    console.error('Error fetching contractor profiles:', error);
+    throw error;
+  } finally {
+    await labourDB.closeAsync();
+  }
+};
+
+export const addContractorProfile = async (contractor) => {
+  const labourDB = await openLabourDB();
+  const {
+    fullName, phone, email, address, city, pincode, photo, idProof,
+    accountHolder, accountNumber, ifscCode, bankName,
+    receiveNotifications, shareLocationData, agreeToTerms
+  } = contractor;
+
+  try {
+    const result = await labourDB.runAsync(
+      `INSERT INTO contractors 
+      (full_name, phone, email, address, city, pincode, photo, id_proof, 
+      account_holder, account_number, ifsc_code, bank_name, 
+      receive_notifications, share_location_data, agree_to_terms) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+      RETURNING id`,
+      [fullName, phone, email, address, city, pincode, photo, idProof,
+      accountHolder, accountNumber, ifscCode, bankName,
+      receiveNotifications, shareLocationData, agreeToTerms]
+    );
+    return result.lastInsertRowId;
+  } catch (error) {
+    console.error('Error adding contractor profile:', error);
+    throw error;
+  } finally {
+    await labourDB.closeAsync();
+  }
+};
+
 // Initialize database
 setupDatabase();
 
@@ -328,5 +395,7 @@ export default {
   getAllLabourProfiles,
   getLabourProfilesBySkills,
   updateLabourProfile,
-  deleteLabourProfile
+  deleteLabourProfile,
+  getAllContractorProfiles,
+  addContractorProfile
 };

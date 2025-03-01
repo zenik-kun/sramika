@@ -3,48 +3,50 @@ import { Text, View, FlatList, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-
-// Mock data for labours
-const mockLabours = [
-    {
-        id: '1',
-        name: 'Rajesh Kumar',
-        age: 32,
-        rating: 4.8,
-        experience: 7,
-        skills: ['Construction', 'Painting'],
-        hourlyRate: 250,
-        availability: 'Immediate',
-        completedJobs: 43,
-        location: 'Indira Nagar, Bangalore',
-        languages: ['Hindi', 'Kannada', 'English'],
-        photo: 'https://randomuser.me/api/portraits/men/75.jpg',
-        verified: true,
-        contactNumber: '+91 9876543210',
-    },
-    {
-        id: '2',
-        name: 'Suresh Patel',
-        age: 28,
-        rating: 4.5,
-        experience: 5,
-        skills: ['Plumbing', 'Electrical'],
-        hourlyRate: 300,
-        availability: 'Within 2 days',
-        completedJobs: 27,
-        location: 'Koramangala, Bangalore',
-        languages: ['Gujarati', 'Hindi', 'English'],
-        photo: 'https://randomuser.me/api/portraits/men/57.jpg',
-        verified: true,
-        contactNumber: '+91 9876543211',
-    },
-    // Add more mock data as needed
-];
+import LabourDB from "../../libs/database";
 
 const ContractorDashboardPage = ({ navigation }) => {
-    const [labours, setLabours] = useState(mockLabours);
+    const [labours, setLabours] = useState([]);
     const [expandedProfile, setExpandedProfile] = useState(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const fetchLabours = async () => {
+            try {
+                const profiles = await LabourDB.getAllLabourProfiles();
+                const transformedProfiles = profiles.map(profile => ({
+                    id: profile.id.toString(),
+                    name: profile.full_name,
+                    age: profile.age,
+                    rating: calculateRating(profile), // You'll need to implement this
+                    experience: profile.experience,
+                    skills: profile.skills,
+                    hourlyRate: profile.hourly_rate,
+                    availability: profile.availability,
+                    completedJobs: profile.completed_jobs,
+                    location: profile.location,
+                    languages: profile.languages.split(',').map(lang => lang.trim()),
+                    photo: profile.photo || 'https://via.placeholder.com/64',
+                    verified: profile.verified,
+                    contactNumber: profile.phone,
+                }));
+                setLabours(transformedProfiles);
+            } catch (error) {
+                console.error('Error fetching labour profiles:', error);
+            }
+        };
+
+        fetchLabours();
+    }, []);
+
+    const calculateRating = (profile) => {
+        // Placeholder rating calculation
+        const baseRating = 3.0;
+        const experienceBonus = Math.min(profile.experience * 0.1, 1.0);
+        const jobsBonus = Math.min(profile.completed_jobs * 0.05, 1.0);
+        const rating = baseRating + experienceBonus + jobsBonus;
+        return rating.toFixed(1);
+    };
 
     const toggleExpandProfile = (id) => {
         if (expandedProfile === id) {
@@ -58,11 +60,15 @@ const ContractorDashboardPage = ({ navigation }) => {
         router.push("/sramikarta/add");
     };
 
+    const handleProfile = () => {
+        router.push("/sramikarta/profile");
+    };
+
     return (
         <SafeAreaView className="flex-1 bg-white">
             {/* Header */}
             <View className="bg-blue-600 pt-2 pb-4 px-4">
-                <View className="flex-row items-center">
+                <View className="flex-row items-center justify-between">
                     <TouchableOpacity 
                         className="mr-2" 
                         onPress={() => router.back()}
@@ -70,18 +76,13 @@ const ContractorDashboardPage = ({ navigation }) => {
                         <Ionicons name="arrow-back" size={24} color="white" />
                     </TouchableOpacity>
                     <Text className="text-2xl font-lbold text-white">Contractor Dashboard</Text>
+                    <TouchableOpacity 
+                        className="ml-2" 
+                        onPress={handleProfile}
+                    >
+                        <Ionicons name="person-circle" size={24} color="white" />
+                    </TouchableOpacity>
                 </View>
-            </View>
-
-            {/* Add Labour Button */}
-            <View className="px-4 py-4">
-                <TouchableOpacity 
-                    className="bg-green-500 rounded-full py-3 px-6 flex-row items-center justify-center shadow-md"
-                    onPress={handleAddLabour}
-                >
-                    <Ionicons name="person-add" size={24} color="white" style={{ marginRight: 8 }} />
-                    <Text className="text-white text-lg font-lbold">Add Labour</Text>
-                </TouchableOpacity>
             </View>
 
             {/* Labour List */}
@@ -194,6 +195,17 @@ const ContractorDashboardPage = ({ navigation }) => {
                     </TouchableOpacity>
                 )}
             />
+
+            {/* Add Labour Button */}
+            <View className="px-4 py-4">
+                <TouchableOpacity 
+                    className="bg-green-500 rounded-full py-3 px-6 flex-row items-center justify-center shadow-md"
+                    onPress={handleAddLabour}
+                >
+                    <Ionicons name="person-add" size={24} color="white" style={{ marginRight: 8 }} />
+                    <Text className="text-white text-lg font-lbold">Add Labour</Text>
+                </TouchableOpacity>
+            </View>
         </SafeAreaView>
     );
 };

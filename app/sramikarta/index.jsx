@@ -14,11 +14,11 @@ const Page = () => {
                 <Text className="text-center text-white font-lregular text-lg opacity-80">Manage your projects and workers</Text>
             </View>
             <View className="px-4 -mt-4 flex-1 justify-center items-center">
-                <Pressable onPress={() => router.push("/sramikarta/register")} className="bg-red-500 rounded-xl p-4 m-2 w-40 h-20 flex items-center justify-center shadow-md">
+                <Pressable onPress={() => router.push("/sramikarta/register")} className="bg-red-500 rounded-xl p-4 m-2 h-20 flex items-center justify-center shadow-md">
                     <Ionicons name="person-add" size={28} color="white" style={{ marginBottom: 8 }} />
                     <Text className="text-white text-lg font-lbold">Be a Contractor</Text>
                 </Pressable>
-                <Pressable onPress={() => router.push("/sramikarta/dashboard")} className="bg-green-500 rounded-xl p-4 m-2 w-40 h-20 flex items-center justify-center shadow-md">
+                <Pressable onPress={() => router.push("/sramikarta/dashboard")} className="bg-green-500 rounded-xl p-4 m-2 h-20 flex items-center justify-center shadow-md">
                     <Ionicons name="people" size={28} color="white" style={{ marginBottom: 8 }} />
                     <Text className="text-white text-lg font-lbold">Need Labour</Text>
                 </Pressable>
